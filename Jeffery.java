@@ -1,4 +1,5 @@
 public class Jeffery extends Ghost{
+    // bro can teleport
     private int teleport;
 
     public Jeffery(){

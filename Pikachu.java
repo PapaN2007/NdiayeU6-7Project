@@ -1,2 +1,5 @@
-public class Pikachu {
+public class Pikachu extends Ghost{
+    public Pikachu(){
+        super("ᙁ");
+    }
 }
