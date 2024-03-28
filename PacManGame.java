@@ -1,4 +1,7 @@
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.text.html.HTMLDocument;
+import java.io.IOException;
 import java.util.Scanner;
 public class PacManGame {
     private Ghost[][] board;
@@ -8,16 +11,26 @@ public class PacManGame {
     private int playerColumn;
 
 
-    public PacManGame() {
+    public PacManGame() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         scanner = new Scanner(System.in);
         createPlayer();
+        promptEnterKey();
         setupBoard();
         play();
     }
 
-
-    private void createPlayer() {
-        System.out.println("Welcome to Pacman GHost buster edition");
+    public static void promptEnterKey(){
+        System.out.println("Press \"ENTER\" to continue...");
+        try {
+            int read = System.in.read(new byte[2]);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void createPlayer() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
+        AudioPlayer audio = new AudioPlayer("pacman_beginning.wav");
+        audio.playSound();
+        System.out.println("Welcome to Pacman Ghost buster edition");
         player = new PacMan();
         playerRow = 7;
         playerColumn = 0;
