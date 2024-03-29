@@ -1,25 +1,37 @@
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 public class CharacterMovement extends JFrame {
-    private final int CELL_SIZE = 25; // Size of each cell
-    private final int NUM_ROWS = 20; // Number of rows in the grid
-    private final int NUM_COLS = 20; // Number of columns in the grid
+    private final int CELL_SIZE = 50; // Size of each cell
+    private final int NUM_ROWS = 12; // Number of rows in the grid
+    private final int NUM_COLS = 12; // Number of columns in the grid
     private final int SCREEN_WIDTH = NUM_COLS * CELL_SIZE; // Width of the screen
     private final int SCREEN_HEIGHT = NUM_ROWS * CELL_SIZE; // Height of the screen
+    private final int CHARACTER_SIZE = CELL_SIZE;
+    private int characterX = 1;
+    private int characterY = 1;
+    // Initial y-coordinate of the character
+    // Size of the character
+    private Image characterImage;
+    private Image offScreenImage;
+    private Jeffery jeffery;
 
-    private int characterX = 0; // Initial x-coordinate of the character
-    private int characterY = 0; // Initial y-coordinate of the character
-    private final int CHARACTER_SIZE = CELL_SIZE; // Size of the character
 
     public CharacterMovement() {
-        setTitle("Grid With Character");
+        setTitle("PacMan Game");
         setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         getContentPane().setBackground(Color.BLACK);
-        // Add key listener to the frame
+        jeffery = new Jeffery(5, 5);
+        characterImage = new ImageIcon("PacMan.png").getImage();
+        if (characterImage == null) {
+            System.out.println("Error: Failed to load character image");
+        }        // Add key listener to the frame
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -32,21 +44,17 @@ public class CharacterMovement extends JFrame {
 
     private void moveCharacter(int keyCode) {
         switch (keyCode) {
-            case KeyEvent.VK_UP:
-                if (characterY > 0) // Prevent moving off the top of the grid
-                    characterY -= CELL_SIZE; // Move character up
+            case KeyEvent.VK_W:
+                characterY = (characterY - CELL_SIZE + SCREEN_HEIGHT) % SCREEN_HEIGHT;
                 break;
-            case KeyEvent.VK_DOWN:
-                if (characterY < SCREEN_HEIGHT - CELL_SIZE) // Prevent moving off the bottom of the grid
-                    characterY += CELL_SIZE; // Move character down
+            case KeyEvent.VK_S:
+                characterY = (characterY + CELL_SIZE) % SCREEN_HEIGHT;
                 break;
-            case KeyEvent.VK_LEFT:
-                if (characterX > 0) // Prevent moving off the left side of the grid
-                    characterX -= CELL_SIZE; // Move character left
+            case KeyEvent.VK_A:
+                characterX = (characterX - CELL_SIZE + SCREEN_WIDTH) % SCREEN_WIDTH;
                 break;
-            case KeyEvent.VK_RIGHT:
-                if (characterX < SCREEN_WIDTH - CELL_SIZE) // Prevent moving off the right side of the grid
-                    characterX += CELL_SIZE; // Move character right
+            case KeyEvent.VK_D:
+                characterX = (characterX + CELL_SIZE) % SCREEN_WIDTH;
                 break;
         }
         repaint(); // Redraw the frame to update character position
@@ -54,30 +62,37 @@ public class CharacterMovement extends JFrame {
 
     @Override
     public void paint(Graphics g) {
-        super.paint(g);
+        if (offScreenImage == null) {
+            offScreenImage = createImage(getWidth(), getHeight());
+        }
+        Graphics offScreenGraphics = offScreenImage.getGraphics();
+        super.paint(offScreenGraphics);
 
         // Draw grid lines
-        g.setColor(Color.WHITE);
-        // Draw horizontal lines
-        for (int row = 0; row <= NUM_ROWS; row++) {
-            int y = row * CELL_SIZE;
-            g.drawLine(0, y, SCREEN_WIDTH, y);
+        offScreenGraphics.setColor(Color.WHITE);
+        for (int x = 0; x <= SCREEN_WIDTH; x += CELL_SIZE) {
+            offScreenGraphics.drawLine(x, 0, x, SCREEN_HEIGHT);
         }
-        // Draw vertical lines
-        for (int col = 0; col <= NUM_COLS; col++) {
-            int x = col * CELL_SIZE;
-            g.drawLine(x, 0, x, SCREEN_HEIGHT);
+        for (int y = 0; y <= SCREEN_HEIGHT; y += CELL_SIZE) {
+            offScreenGraphics.drawLine(0, y, SCREEN_WIDTH, y);
         }
 
-        // Draw character
-        g.setColor(Color.RED);
-        g.fillRect(characterX, characterY, CHARACTER_SIZE, CHARACTER_SIZE);
+        // Draw character image
+        offScreenGraphics.drawImage(characterImage, characterX, characterY, CHARACTER_SIZE, CHARACTER_SIZE, null);
+
+        // Draw off-screen image onto the screen
+        g.drawImage(offScreenImage, 0, 0, this);
+        jeffery.draw(g);
+
     }
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         SwingUtilities.invokeLater(() -> {
             CharacterMovement frame = new CharacterMovement();
             frame.setVisible(true);
         });
+        AudioPlayer audio = new AudioPlayer("pacman_beginning.wav");
+        audio.playSound();
     }
 }

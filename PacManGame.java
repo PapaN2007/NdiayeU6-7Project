@@ -38,7 +38,7 @@ public class PacManGame {
     private void setupBoard() {
         board = new Ghost[8][8];
         board[7][0] = player;
-        board[6][5] = new Jeffery();
+        //board[6][5] = new Jeffery();
         board[5][3] = new Casper();
         board[3][6] = new Pikachu();
         board[1][2] = new BeelzeBub();
