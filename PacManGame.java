@@ -36,17 +36,17 @@ public class PacManGame {
         playerColumn = 0;
     }
     private void setupBoard() {
-        board = new Ghost[8][8];
+        board = new Ghost[21][21];
         board[7][0] = player;
         //board[6][5] = new Jeffery();
         board[5][3] = new Casper();
-        board[3][6] = new Pikachu();
+        board[1][2] = new Pikachu();
         board[1][2] = new BeelzeBub();
-        board[0][7] = new Cookies();
+        board[20][15] = new Cookies();
         for (int r = 0; r < board.length; r++) {
             for (int c = 0; c < board[r].length; c++) {
                 if (board[r][c] == null) {
-                    board[r][c] = new Ghost("_");
+                    board[r][c] = new Ghost("⬜");
                 }
             }
         }
@@ -78,7 +78,7 @@ public class PacManGame {
             if (direction.equals("w")) {
                 if (playerRow - 1 >= 0) {
                     player.move();
-                    board[playerRow][playerColumn] = new Ghost("_");
+                    board[playerRow][playerColumn] = new Ghost("⬜");
                     playerRow--;
                 } else {
                     System.out.println("Out of bounds!");
@@ -86,7 +86,7 @@ public class PacManGame {
             } else if (direction.equals("a")) {
                 if (playerColumn - 1 >= 0) {
                     player.move();
-                    board[playerRow][playerColumn] = new Ghost("_");
+                    board[playerRow][playerColumn] = new Ghost("⬜");
                     playerColumn--;
                 } else {
                     System.out.println("Out of bounds!");
@@ -94,7 +94,7 @@ public class PacManGame {
             } else if (direction.equals("d")) {
                 if (playerColumn + 1 < 8) {
                     player.move();
-                    board[playerRow][playerColumn] = new Ghost("_");
+                    board[playerRow][playerColumn] = new Ghost("⬜");
                     playerColumn++;
                 } else {
                     System.out.println("Out of bounds!");
@@ -102,7 +102,7 @@ public class PacManGame {
             } else if (direction.equals("s")) {
                 if (playerRow + 1 < 8) {
                     player.move();
-                    board[playerRow][playerColumn] = new Ghost("_");
+                    board[playerRow][playerColumn] = new Ghost("⬜");
                     playerRow++;
                 } else {
                     System.out.println("Out of bounds!");

@@ -3,7 +3,7 @@ public class PacMan extends Ghost{
     private int moves;
 
     public PacMan() {
-        super( " ᗧ"); // symbol is first initial
+        super( "\uD83E\uDD10"); // symbol is first initial
         score = 0;
         moves = 1;
     }
