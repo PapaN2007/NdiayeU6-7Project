@@ -18,4 +18,12 @@ public class Ghost {
         return false;
     }
 
+    public int moveGhostRow(){
+        return (int) (Math.random() * 21);
+
+    }
+    public int moveGhostColumn(){
+        return (int) (Math.random() * 21);
+    }
+
 }
