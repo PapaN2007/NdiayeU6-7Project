@@ -17,4 +17,5 @@ public class Ghost {
     public boolean isEaten(){
         return false;
     }
+
 }

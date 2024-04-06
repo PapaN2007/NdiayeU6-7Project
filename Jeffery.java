@@ -6,7 +6,7 @@ public class Jeffery extends Ghost {
     private int teleport;
 
     public Jeffery() {
-        super("hi");
+        super("🦖");
     }
 
 
