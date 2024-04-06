@@ -1,9 +1,11 @@
 import java.util.Random;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.plaf.metal.MetalIconFactory;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class PacManGame {
     private Ghost[][] board;
@@ -12,12 +14,19 @@ public class PacManGame {
     private int playerRow;
     private int playerColumn;
     private static int BOARD_SIZE = 21;
+    private int totalCookies = 10;
+    private int currentCookies;
+    private Timer respawnTimer;
+    AudioPlayer audio = new AudioPlayer("pacman_beginning.wav");
 
-    public PacManGame() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
+
+
+    public PacManGame() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         scanner = new Scanner(System.in);
         createPlayer();
         promptEnterKey();
         setupBoard();
+        startRespawnTimer();
         play();
     }
 
@@ -31,29 +40,39 @@ public class PacManGame {
     }
 
     private void createPlayer() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
+        audio.playSound();
         System.out.println("Welcome to Pacman Ghost buster edition");
         player = new PacMan();
-        Ghost pikachu = new Pikachu();
-        Ghost casper = new Casper();
-        Ghost beelzebub = new BeelzeBub();
-        Ghost jeffery = new Jeffery();
-        playerRow = 20;
-        playerColumn = 0;
+        playerRow = 10;
+        playerColumn = 10;
     }
 
     private void setupBoard() {
         board = new Ghost[21][21];
-        board[20][0] = player;
+        board[10][10] = player;
         board[0][20] = new Casper();
         board[20][20] = new Pikachu();
         board[0][0] = new BeelzeBub();
-        board[10][10] = new Jeffery();
-        board[20][15] = new Cookies();
+        board[20][0] = new Jeffery();
+        currentCookies = totalCookies;
+        spawnCookies();
         for (int r = 0; r < board.length; r++) {
             for (int c = 0; c < board[r].length; c++) {
                 if (board[r][c] == null) {
                     board[r][c] = new Ghost("⬜");
                 }
+            }
+        }
+    }
+
+    private void spawnCookies() {
+        Random random = new Random();
+        while (currentCookies > 0) {
+            int row = random.nextInt(BOARD_SIZE);
+            int col = random.nextInt(BOARD_SIZE);
+            if (!(board[row][col] instanceof Ghost) && !(board[row][col] instanceof PacMan) && !(board[row][col] instanceof Cookies)) {
+                board[row][col] = new Cookies();
+                currentCookies--;
             }
         }
     }
@@ -65,6 +84,7 @@ public class PacManGame {
             }
             System.out.println();
         }
+        System.out.println("Points: " + player.getScore());
     }
 
     private void checkTreasure() {
@@ -72,13 +92,60 @@ public class PacManGame {
             int points = ((Cookies) board[playerRow][playerColumn]).getPointValue();
             player.addPoints(points);
             System.out.println(points + " points were added to the player.");
+            board[playerRow][playerColumn] = new Ghost("⬜");
+            currentCookies--;
         }
     }
 
-    private void play() {
+    private void startRespawnTimer() {
+        respawnTimer = new Timer();
+        respawnTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                respawnCookies();
+            }
+        }, 0, 5000); // Respawn cookies every 5 seconds (adjust as needed)
+    }
+
+
+    private void respawnCookies() {
+        Random random = new Random();
+        int numCookies = random.nextInt(5) + 1; // Generate a random number of cookies to respawn (between 1 and 5)
+
+        // Respawn the specified number of cookies at random locations on the board
+        for (int i = 0; i < numCookies; i++) {
+            int row = random.nextInt(BOARD_SIZE);
+            int col = random.nextInt(BOARD_SIZE);
+
+            // Check if the chosen location is empty (not already occupied by a ghost or the player)
+            if (!(board[row][col] instanceof Ghost) && !(board[row][col] instanceof PacMan) && !(board[row][col] instanceof Cookies)) {
+                board[row][col] = new Cookies();
+            }
+        }
+    }
+
+
+    private void checkCollision() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
+        for (int r = 0; r < BOARD_SIZE; r++) {
+            for (int c = 0; c < BOARD_SIZE; c++) {
+                if (board[r][c] instanceof Jeffery || board[r][c] instanceof Pikachu || board[r][c] instanceof BeelzeBub || board[r][c] instanceof Casper) {
+                    if (r == playerRow && c == playerColumn) {
+                        audio.pause();
+                        AudioPlayer end = new AudioPlayer("34 Pac Man World 2 End credits montage.wav");
+                        end.playSound();
+                        System.out.println("You collided with a ghost! Game over!");
+                        System.out.println("Your cookie score is: " + player.getScore());
+                        Thread.sleep(10000);
+                        System.exit(0);
+                    }
+                }
+            }
+        }
+    }
+
+    private void play() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         while (!(board[0][7] instanceof PacMan)) {
             printBoard();
-            moveGhosts(); // Move ghosts before player's turn
             System.out.print("Enter a direction: ");
             String direction = scanner.nextLine();
             if (direction.equals("w")) {
@@ -86,7 +153,7 @@ public class PacManGame {
                     player.move();
                     board[playerRow][playerColumn] = new Ghost("⬜");
                     playerRow--;
-                    moveGhosts();
+                    player.move(); // Move the player after updating the position
                 } else {
                     System.out.println("Out of bounds!");
                 }
@@ -95,7 +162,7 @@ public class PacManGame {
                     player.move();
                     board[playerRow][playerColumn] = new Ghost("⬜");
                     playerColumn--;
-                    moveGhosts();
+                    player.move(); // Move the player after updating the position
                 } else {
                     System.out.println("Out of bounds!");
                 }
@@ -104,7 +171,7 @@ public class PacManGame {
                     player.move();
                     board[playerRow][playerColumn] = new Ghost("⬜");
                     playerColumn++;
-                    moveGhosts();
+                    player.move(); // Move the player after updating the position
                 } else {
                     System.out.println("Out of bounds!");
                 }
@@ -113,72 +180,20 @@ public class PacManGame {
                     player.move();
                     board[playerRow][playerColumn] = new Ghost("⬜");
                     playerRow++;
-                    moveGhosts();
+                    player.move(); // Move the player after updating the position
                 } else {
                     System.out.println("Out of bounds!");
                 }
             } else {
                 System.out.println("Invalid!");
             }
+            checkCollision();
             checkTreasure();
+            respawnCookies();
             board[playerRow][playerColumn] = player;
         }
         printBoard();
-        System.out.println("You reached the goal!");
-        System.out.println("Your score is: " + player.getScore());
-        System.out.println("Your total moves is: " + player.getMoves());
     }
-    private void moveGhosts() {
-        // Create a temporary board to store the new positions of the ghosts
-        Random random = new Random();
 
-        // Iterate over the current board to move each ghost
-        for (int r = 0; r < BOARD_SIZE; r++) {
-            for (int c = 0; c < BOARD_SIZE; c++) {
-                if ((board[r][c] instanceof Ghost) && !(board[r][c] instanceof PacMan) && !(board[r][c] instanceof Cookies)){
-                    Ghost ghost = (Ghost) board[r][c];
-                    int ghostRow = r;
-                    int ghostCol = c;
-
-                    // Determine the direction in which the ghost should move
-                    int moveDirection = random.nextInt(4); // 0: up, 1: down, 2: left, 3: right
-
-                    // Random chance to move towards player
-                    if (random.nextDouble() < 0.3) { // Adjust this probability as desired
-                        int distRow = playerRow - ghostRow;
-                        int distCol = playerColumn - ghostCol;
-
-                        // Prioritize movement towards the player
-                        if (Math.abs(distRow) > Math.abs(distCol)) {
-                            if (distRow > 0) moveDirection = 1; // Down
-                            else moveDirection = 0; // Up
-                        } else {
-                            if (distCol > 0) moveDirection = 3; // Right
-                            else moveDirection = 2; // Left
-                        }
-                    }
-
-                    // Update ghost position based on the chosen direction
-                    switch (moveDirection) {
-                        case 0: // Up
-                            ghostRow = (ghostRow - 1 + BOARD_SIZE) % BOARD_SIZE;
-                            break;
-                        case 1: // Down
-                            ghostRow = (ghostRow + 1) % BOARD_SIZE;
-                            break;
-                        case 2: // Left
-                            ghostCol = (ghostCol - 1 + BOARD_SIZE) % BOARD_SIZE;
-                            break;
-                        case 3: // Right
-                            ghostCol = (ghostCol + 1) % BOARD_SIZE;
-                            break;
-                    }
-
-                    // Place the ghost in the new position on the temporary board
-                    board[ghostRow][ghostCol] = ghost;
-                }
-            }
-        }
-    }
 
 }

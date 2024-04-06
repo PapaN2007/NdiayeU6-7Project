@@ -3,7 +3,7 @@ public class PacMan extends Ghost{
     private int moves;
 
     public PacMan() {
-        super( "\uD83E\uDD10"); // symbol is first initial
+        super( "\uD83E\uDD10");
         score = 0;
         moves = 1;
     }
@@ -11,6 +11,7 @@ public class PacMan extends Ghost{
     public int getScore() {
         return score;
     }
+
 
     public void addPoints(int amt) {
         score += amt;
