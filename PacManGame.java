@@ -84,12 +84,13 @@ public class PacManGame {
     }
 
     private void spawnCookies() {
+        Cookies test = new Cookies();
         totalCookies = (int) (Math.random() * 10) + 1;;
         currentCookies = totalCookies;
         cookiesonBoard = totalCookies;
         while (currentCookies > 0) {
-            int r = (int) (Math.random() * (BOARD_SIZE));
-            int c = (int) (Math.random() * (BOARD_SIZE));
+            int r = test.moveRow();
+            int c = test.moveColumn();
             if (!(board[r][c] instanceof Jeffery) && !(board[r][c] instanceof Casper) && !(board[r][c] instanceof Pikachu) && !(board[r][c] instanceof BeelzeBub) && !(board[r][c] instanceof PacMan) && !(board[r][c] instanceof Cookies)) {
                 board[r][c] = new Cookies();
                 currentCookies--;
@@ -204,14 +205,14 @@ public class PacManGame {
         if (name.getSymbol().equals("🦖")){
             board[jefferyRow][jefferyColumn] = new Ghost("⬜");
             if (jefferyRow >= 17){
-                jefferyRow = jeffery.moveGhostRow();
+                jefferyRow = jeffery.moveRow();
             }else {
-                jefferyRow = jeffery.moveGhostRow();
+                jefferyRow = jeffery.moveRow();
             }
             if (jefferyColumn >= 17){
-                jefferyColumn = jeffery.moveGhostColumn();
+                jefferyColumn = jeffery.moveColumn();
             }else {
-                jefferyColumn = jeffery.moveGhostColumn();
+                jefferyColumn = jeffery.moveColumn();
             }
             if (board[jefferyRow][jefferyColumn] instanceof Cookies){
                 board[jefferyRow--][jefferyColumn] = jeffery;
@@ -221,14 +222,14 @@ public class PacManGame {
         }else if (name.getSymbol().equals("👻")){
             board[casperRow][casperColumn] = new Ghost("⬜");
             if (casperRow >= 17){
-                casperRow = casper.moveGhostRow();
+                casperRow = casper.moveRow();
             }else {
-                casperRow = casper.moveGhostRow();
+                casperRow = casper.moveRow();
             }
             if (casperColumn >= 17){
-                casperColumn = casper.moveGhostColumn();
+                casperColumn = casper.moveColumn();
             }else {
-                casperColumn = casper.moveGhostColumn();
+                casperColumn = casper.moveColumn();
             }
             if (board[casperRow][casperColumn] instanceof Cookies){
                 board[casperRow--][casperColumn] = casper;
@@ -238,14 +239,14 @@ public class PacManGame {
         }else if (name.getSymbol().equals("👹")){
             board[beelzebubRow][beelzebubColumn] = new Ghost("⬜");
             if (beelzebubRow >= 17){
-                beelzebubRow = beelzeBub.moveGhostRow();
+                beelzebubRow = beelzeBub.moveRow();
             }else {
-                beelzebubRow = beelzeBub.moveGhostRow();
+                beelzebubRow = beelzeBub.moveRow();
             }
             if (beelzebubColumn >= 17){
-                beelzebubColumn = beelzeBub.moveGhostColumn();
+                beelzebubColumn = beelzeBub.moveColumn();
             }else {
-                beelzebubColumn = beelzeBub.moveGhostColumn();
+                beelzebubColumn = beelzeBub.moveColumn();
             }
             if (board[beelzebubRow][beelzebubColumn] instanceof Cookies){
                 board[beelzebubRow--][beelzebubColumn] = beelzeBub;
@@ -255,14 +256,14 @@ public class PacManGame {
         }else if (name.getSymbol().equals("🐝")){
             board[pikachuRow][pikachuColumn] = new Ghost("⬜");
             if (pikachuRow >= 17){
-                pikachuRow = pikachu.moveGhostRow();
+                pikachuRow = pikachu.moveRow();
             }else {
-                pikachuRow = pikachu.moveGhostRow();
+                pikachuRow = pikachu.moveRow();
             }
             if (pikachuColumn >= 17){
-                pikachuColumn = pikachu.moveGhostColumn();
+                pikachuColumn = pikachu.moveColumn();
             }else {
-                pikachuColumn = pikachu.moveGhostColumn();
+                pikachuColumn = pikachu.moveColumn();
             }
             if (board[pikachuRow][pikachuColumn] instanceof Cookies){
                 board[pikachuRow--][pikachuColumn] = pikachu;
