@@ -9,8 +9,9 @@ public class PacManGame {
     private int playerRow;
     private int playerColumn;
     private static int BOARD_SIZE = 21;
-    private int totalCookies =  0;
+    private int totalCookies = (int) (Math.random() * 10) + 1;
     private int currentCookies;
+    private int cookiesonBoard;
     AudioPlayer audio = new AudioPlayer("pacman_beginning.wav");
 
     public PacManGame() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
@@ -40,9 +41,9 @@ public class PacManGame {
     private void setupBoard() {
         board = new Ghost[21][21];
         board[10][10] = player;
-        board[0][20] = new Casper();
-        board[20][20] = new Pikachu();
-        board[0][0] = new BeelzeBub();
+        board[20][20] = new Casper();
+        board[10][20] = new Pikachu();
+        board[0][20] = new BeelzeBub();
         board[20][0] = new Jeffery();
         currentCookies = totalCookies;
         spawnCookies();
@@ -56,13 +57,14 @@ public class PacManGame {
     }
 
     private void spawnCookies() {
-        totalCookies = (int) (Math.random() * 10) + 1;
+        totalCookies = (int) (Math.random() * 10) + 1;;
         currentCookies = totalCookies;
+        cookiesonBoard = totalCookies;
         while (currentCookies > 0) {
-            int row = (int) (Math.random() * (BOARD_SIZE));
-            int col = (int) (Math.random() * (BOARD_SIZE));
-            if (!(board[row][col] instanceof Ghost) && !(board[row][col] instanceof PacMan) && !(board[row][col] instanceof Cookies)) {
-                board[row][col] = new Cookies();
+            int r = (int) (Math.random() * (BOARD_SIZE));
+            int c = (int) (Math.random() * (BOARD_SIZE));
+            if (!(board[r][c] instanceof Jeffery) && !(board[r][c] instanceof Casper) && !(board[r][c] instanceof Pikachu) && !(board[r][c] instanceof BeelzeBub) && !(board[r][c] instanceof PacMan) && !(board[r][c] instanceof Cookies)) {
+                board[r][c] = new Cookies();
                 currentCookies--;
             }
         }
@@ -80,29 +82,14 @@ public class PacManGame {
 
     private void checkTreasure() {
         if (board[playerRow][playerColumn] instanceof Cookies) {
-            int points = (int)  (Math.random() * 10) -1;
+            int points = (int)  (Math.random() * 10) + 1;
             player.addPoints(points);
             System.out.println(points + " points were added to the player.");
             board[playerRow][playerColumn] = new Ghost("⬜");
-            currentCookies--;
+            cookiesonBoard--;
+        } if (cookiesonBoard == 0){
+            spawnCookies();
         }
-    }
-
-
-
-    private void respawnCookies() {
-            totalCookies = (int) (Math.random() * 10) + 1;
-            currentCookies = totalCookies;
-            for (int r = 0; r < BOARD_SIZE; r++) {
-                for (int c = 0; c < BOARD_SIZE; c++) {
-                    if (!(board[r][c] instanceof Ghost) && !(board[r][c] instanceof PacMan) && !(board[r][c] instanceof Cookies)) {
-                        if (currentCookies > 0) {
-                            board[r][c] = new Cookies();
-                            currentCookies--;
-                        }
-                    }
-                }
-            }
     }
     private void gameOver() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         audio.pause();
@@ -134,7 +121,7 @@ public class PacManGame {
     private void moveGhosts() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         for (int r = 0; r < BOARD_SIZE; r++) {
             for (int c = 0; c < BOARD_SIZE; c++) {
-                if ((board[r][c] instanceof Jeffery) || (board[r][c] instanceof Casper) || (board[r][c] instanceof Pikachu) || (board[r][c] instanceof BeelzeBub)){
+                if ((board[r][c] instanceof Jeffery) || (board[r][c] instanceof Casper) || (board[r][c] instanceof Pikachu) || (board[r][c] instanceof BeelzeBub)) {
                     Ghost ghost = board[r][c];
                     int ghostRow = r;
                     int ghostCol = c;
@@ -147,17 +134,18 @@ public class PacManGame {
                         if (distCol > 0 && isValidMove(ghostRow, ghostCol + 1)) ghostCol++;
                         else if (isValidMove(ghostRow, ghostCol - 1)) ghostCol--;
                     }
-                    if (ghostRow == playerRow && ghostCol == playerColumn) {
-                        gameOver();
-                    }
                     board[r][c] = new Ghost("⬜");
-                    board[ghostRow][ghostCol] = ghost;
+                    if (board[ghostRow][ghostCol] instanceof Cookies) {
+                        board[ghostRow + 1][ghostCol - 1] = ghost;
+                    } else {
+                        board[ghostRow][ghostCol] = ghost;
+                    }
                 }
             }
         }
     }
     private void play() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
-        while (!(board[0][7] instanceof PacMan)) {
+        while (player.getScore() != 100) {
             printBoard();
             System.out.print("Enter a direction: ");
             String direction = scanner.nextLine();
@@ -176,14 +164,14 @@ public class PacManGame {
                     System.out.println("Out of bounds!");
                 }
             } else if (direction.equals("d")) {
-                if (playerColumn + 1 <= 21) {
+                if (playerColumn + 1 <= 20) {
                     board[playerRow][playerColumn] = new Ghost("⬜");
                     playerColumn++;
                 } else {
                     System.out.println("Out of bounds!");
                 }
             } else if (direction.equals("s")) {
-                if (playerRow + 1 <= 21) {
+                if (playerRow + 1 <= 20) {
                     board[playerRow][playerColumn] = new Ghost("⬜");
                     playerRow++;
                 } else {
@@ -192,17 +180,10 @@ public class PacManGame {
             } else {
                 System.out.println("Invalid!");
             }
-            // moveGhosts();
             checkCollision();
             checkTreasure();
+            moveGhosts();
             board[playerRow][playerColumn] = player;
-            if (currentCookies == 0){
-                respawnCookies();
-            }
-            printBoard();
         }
-        printBoard();
     }
-
-
 }

@@ -3,10 +3,5 @@ public class Cookies extends Ghost{
 
     public Cookies() {
         super("🍪");
-        pointValue = 10;
-    }
-
-    public int getPointValue() {
-        return pointValue;
     }
 }
