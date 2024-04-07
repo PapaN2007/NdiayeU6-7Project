@@ -19,11 +19,9 @@ public class Ghost {
     }
 
     public int moveGhostRow(){
-        return (int) (Math.random() * 21);
-
+        return (int) (Math.random() * 20) +1;
     }
     public int moveGhostColumn(){
-        return (int) (Math.random() * 21);
+        return (int) (Math.random() * 20) +1;
     }
-
 }
